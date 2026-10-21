@@ -2,17 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="application-name" content="Double Seam Mini Cal">
-  <meta name="theme-color" content="#0f766e">
-  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Double Seam Mini Cal</title>
+  <meta name="theme-color" content="#1262ad">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MINI CAL">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <!-- Standalone offline version: no Google Apps Script, server, CDN, or internet dependency. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Double Seam Mini Cal</title>
   <style>
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
@@ -319,11 +315,10 @@
         .replace(/'/g,'&#39;');
     }
   </script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
-}
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+    }
+  </script>
 </body>
 </html>
