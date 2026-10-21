@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="application-name" content="Double Seam Mini Cal">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MINI CAL">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <!-- Standalone offline version: no Google Apps Script, server, CDN, or internet dependency. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Double Seam Mini Cal</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:#eef3f8;font-family:Arial,sans-serif;color:#202124}
+    button,input,select{font-family:Arial,sans-serif}
+    .header{background:#1262ad;color:#fff}
+    .header-inner{width:100%;max-width:680px;margin:auto;padding:12px}
+    .header-title{text-align:center}
+    .header-title h1{margin:0;font-size:23px}
+    .header-title p{margin:3px 0 0;font-size:11px}
+    .app{width:100%;max-width:680px;margin:16px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 15px rgba(0,0,0,.12)}
+    .main{padding:12px 16px}
+    .section-title{margin:0 0 5px;padding-bottom:5px;color:#0759a7;border-bottom:2px solid #0759a7;font-size:14px;font-weight:bold}
+    .data-table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .data-table td{padding:4px 0;border-bottom:1px solid #eee;vertical-align:middle}
+    .item-cell{width:55%;padding-right:8px!important;font-size:13px;font-weight:bold}
+    .required{color:#d93025}
+    .optional-text{display:block;color:#888;font-size:9px;font-weight:normal;margin-top:1px}
+    .input-wrap{position:relative;width:100%}
+    .measure-input,.info-input{display:block;width:100%;height:34px;border:1px solid #9aa0a6;border-radius:5px;background:#fff;color:#202124;outline:none}
+    .measure-input{padding:3px 38px 3px 8px;font-size:15px;text-align:right}
+    .info-input{padding:3px 8px;font-size:14px}
+    .measure-input:focus,.info-input:focus,.measure-3-input:focus{border:2px solid #1262ad}
+    .measure-input:disabled,.measure-3-input:disabled{background:#f1f3f4;opacity:1}
+    .unit{position:absolute;right:7px;top:10px;color:#666;font-size:10px;pointer-events:none}
+    .material-info{margin:7px 0;padding:6px 8px;background:#e8f2fd;color:#0759a7;border-radius:5px;font-size:10px}
+    .measure-3-table,.result-3-table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .measure-3-table th,.measure-3-table td,.result-3-table th,.result-3-table td{border-bottom:1px solid #e8eaed;padding:6px 4px;vertical-align:middle}
+    .measure-3-table thead th,.result-3-table thead th{background:#f5f8fc;color:#5f6368;font-size:10px;font-weight:bold;text-align:center}
+    .measure-name,.result-name{width:40%;padding-left:2px!important;padding-right:8px!important;color:#202124;font-size:12px;font-weight:bold;text-align:left!important}
+    .measure-3-input{width:100%;height:34px;padding:4px 5px;border:1px solid #9aa0a6;border-radius:5px;background:#fff;color:#202124;font-size:14px;text-align:center;outline:none}
+    .measure-unit-note{padding:5px 2px 7px;color:#777;font-size:9px;text-align:right}
+    .result-point{color:#0759a7;font-size:13px;font-weight:bold;text-align:center}
+    .result-unit{color:#777;font-size:8px;font-weight:normal}
+    .calc-button{width:100%;height:42px;margin-top:8px;border:0;border-radius:7px;background:#1262ad;color:#fff;font-size:24px;font-weight:bold;cursor:pointer}
+    .calc-button:disabled{background:#9aa0a6}
+    #miniMessage{display:none;margin-top:7px;padding:8px;border-radius:5px;background:#fce8e6;color:#b3261e;font-size:11px}
+    #miniResults{display:none;margin-top:12px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .action-button{height:38px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer}
+    .edit-button{border:1px solid #1262ad;background:#e8f2fd;color:#0759a7}
+    .next-button{border:1px solid #9aa0a6;background:#fff;color:#444}
+    .footer{padding:7px;background:#fafafa;color:#777;font-size:9px;text-align:center}
+    @media(max-width:600px){
+      body{background:#fff}
+      .header-inner{padding:8px 10px}
+      .header-title h1{font-size:20px}
+      .app{max-width:none;margin:0;border-radius:0;box-shadow:none}
+      .main{padding:9px 10px}
+      .section-title{font-size:12px}
+      .item-cell{width:52%;font-size:11px}
+      .measure-input,.info-input{height:32px;font-size:13px}
+      .unit{top:9px}
+      .measure-name,.result-name{width:37%;font-size:10px}
+      .measure-3-input{height:33px;padding:3px;font-size:13px}
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-title">
+        <h1>DOUBLE SEAM MINI CAL</h1>
+        <p>Quick Double Seam Calculation Tool</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="main">
+      <div class="section-title">MINI CAL</div>
+      <table class="data-table">
+        <tr>
+          <td class="item-cell">Can size</td>
+          <td>
+            <select class="info-input" id="miniCanSize">
+              <option value="">Select can size...</option>
+              <option value="202/200x308">202/200x308</option>
+              <option value="307x113">307x113</option>
+              <option value="202/200x308-Lid 202">202/200x308-Lid 202</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+
+      <div class="material-info" id="miniMaterialThicknessInfo"></div>
+
+      <div class="section-title" style="margin-top:12px">MEASUREMENT DATA</div>
+      <table class="measure-3-table">
+        <thead>
+          <tr><th></th><th>POINT 1</th><th>POINT 2</th><th>POINT 3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="measure-name">Seam Length (SL) <span class="required">*</span></td>
+            <td><input class="measure-3-input" id="miniSl1" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniSl2" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniSl3" type="number" step=".01"></td>
+          </tr>
+          <tr>
+            <td class="measure-name">Seam Thickness (TH)<span class="optional-text">Optional</span></td>
+            <td><input class="measure-3-input" id="miniTh1" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniTh2" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniTh3" type="number" step=".01"></td>
+          </tr>
+          <tr>
+            <td class="measure-name">Body Hook (BH) <span class="required">*</span></td>
+            <td><input class="measure-3-input" id="miniBh1" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniBh2" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniBh3" type="number" step=".01"></td>
+          </tr>
+          <tr>
+            <td class="measure-name">Cover Hook (CH) <span class="required">*</span></td>
+            <td><input class="measure-3-input" id="miniCh1" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniCh2" type="number" step=".01"></td>
+            <td><input class="measure-3-input" id="miniCh3" type="number" step=".01"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="measure-unit-note">All dimensions in mm</div>
+
+      <table class="data-table">
+        <tr>
+          <td class="item-cell">End Thickness (Te) *</td>
+          <td><div class="input-wrap"><input class="measure-input" id="miniTe" type="number" step=".01" value="0.17"><span class="unit">mm</span></div></td>
+        </tr>
+        <tr>
+          <td class="item-cell">Body Thickness (Tb) *</td>
+          <td><div class="input-wrap"><input class="measure-input" id="miniTb" type="number" step=".01" value="0.16"><span class="unit">mm</span></div></td>
+        </tr>
+      </table>
+
+      <button id="miniCalcButton" class="calc-button" onclick="calculateMiniSeam()">=</button>
+      <div id="miniMessage"></div>
+      <div id="miniResults">
+        <div class="section-title">CALCULATION RESULTS</div>
+        <div id="miniResultTable"></div>
+        <div class="actions">
+          <button class="action-button edit-button" onclick="editMiniData()">EDIT</button>
+          <button class="action-button next-button" onclick="clearMiniCal()">CLEAR</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer">QA/QC Double Seam Mini Calculator</div>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded',function(){
+      setupThickness('miniCanSize','miniTe','miniTb','miniMaterialThicknessInfo');
+    });
+
+    function num(id){
+      var v=document.getElementById(id).value.trim();
+      return v===''?NaN:Number(v.replace(',','.'));
+    }
+
+    function optionalNum(id){
+      var v=document.getElementById(id).value.trim();
+      if(v==='')return null;
+      var n=Number(v.replace(',','.'));
+      return Number.isFinite(n)?n:null;
+    }
+
+    function setupThickness(canId,teId,tbId,infoId){
+      var c=document.getElementById(canId),
+          te=document.getElementById(teId),
+          tb=document.getElementById(tbId),
+          defs={
+            '202/200x308':{te:'0.17',tb:'0.16'},
+            '307x113':{te:'0.20',tb:'0.16'},
+            '202/200x308-lid 202':{te:'0.19',tb:'0.16'}
+          };
+
+      function update(){
+        document.getElementById(infoId).innerHTML='<strong>Material Thickness:</strong> Te = '+escapeHtml(te.value||'—')+' mm, Tb = '+escapeHtml(tb.value||'—')+' mm. Values can be changed manually.';
+      }
+
+      function apply(){
+        var x=defs[c.value.trim().toLowerCase()];
+        if(x){te.value=x.te;tb.value=x.tb;}
+        update();
+      }
+
+      c.addEventListener('change',apply);
+      te.addEventListener('input',update);
+      tb.addEventListener('input',update);
+      apply();
+    }
+
+    function calculationForPoint(d){
+      var sl=+d.sl,bh=+d.bh,ch=+d.ch,te=+d.te,tb=+d.tb;
+      if(![sl,bh,ch,te,tb].every(function(n){return Number.isFinite(n)&&n>0;})){
+        throw Error('SL, BH, CH, Te and Tb must be valid positive numbers.');
+      }
+      var den=sl-(1.1*tb+2.2*te);
+      if(Math.abs(den)<1e-7)throw Error('Cannot calculate. Please check SL, Te and Tb.');
+      var actual=ch+bh+1.1*te-sl;
+      return{
+        butting:(bh-1.1*tb)/den*100,
+        actual:actual,
+        overlap:actual/den*100,
+        freeSpace:d.th==null?null:+d.th-(2*tb+3*te)
+      };
+    }
+
+    function displayNumber(v,d){
+      return v==null||v===''||!Number.isFinite(Number(v))?'-':Number(v).toFixed(d);
+    }
+
+    function resultTable(points){
+      var rows=[
+        ['Body Hook Butting','butting','%'],
+        ['Actual Overlap','actual','mm'],
+        ['Overlap','overlap','%'],
+        ['Free Space','freeSpace','mm']
+      ],h='<table class="result-3-table"><thead><tr><th></th><th>POINT 1</th><th>POINT 2</th><th>POINT 3</th></tr></thead><tbody>';
+
+      rows.forEach(function(r){
+        h+='<tr><td class="result-name">'+r[0]+' <span class="result-unit">'+r[2]+'</span></td>';
+        points.forEach(function(p){
+          h+='<td class="result-point">'+(p[r[1]]==null?'N/A':displayNumber(p[r[1]],2))+'</td>';
+        });
+        h+='</tr>';
+      });
+      return h+'</tbody></table>';
+    }
+
+    function miniNum(id){return num(id);}
+    function miniOpt(id){return optionalNum(id);}
+
+    function miniError(t){
+      var b=document.getElementById('miniMessage');
+      b.textContent=t;
+      b.style.display='block';
+    }
+
+    function calculateMiniSeam(){
+      document.getElementById('miniMessage').style.display='none';
+      var te=miniNum('miniTe'),tb=miniNum('miniTb'),points=[];
+
+      if(!Number.isFinite(te)||te<=0)return miniError('Please enter a valid Te.');
+      if(!Number.isFinite(tb)||tb<=0)return miniError('Please enter a valid Tb.');
+
+      try{
+        for(var i=1;i<=3;i++){
+          var d={
+            point:i,
+            sl:miniNum('miniSl'+i),
+            th:miniOpt('miniTh'+i),
+            bh:miniNum('miniBh'+i),
+            ch:miniNum('miniCh'+i),
+            te:te,
+            tb:tb
+          };
+          if(!Number.isFinite(d.sl)||d.sl<=0)throw Error('Please enter valid SL for Point '+i+'.');
+          if(!Number.isFinite(d.bh)||d.bh<=0)throw Error('Please enter valid BH for Point '+i+'.');
+          if(!Number.isFinite(d.ch)||d.ch<=0)throw Error('Please enter valid CH for Point '+i+'.');
+          points.push(Object.assign(d,calculationForPoint(d)));
+        }
+      }catch(e){
+        miniError(e.message);
+        return;
+      }
+
+      document.getElementById('miniResultTable').innerHTML=resultTable(points);
+      document.getElementById('miniResults').style.display='block';
+      miniLock(true);
+    }
+
+    function miniIds(){
+      var a=[];
+      ['Sl','Th','Bh','Ch'].forEach(function(k){
+        for(var i=1;i<=3;i++)a.push('mini'+k+i);
+      });
+      return a.concat(['miniTe','miniTb']);
+    }
+
+    function miniLock(b){
+      miniIds().forEach(function(id){document.getElementById(id).disabled=b;});
+      document.getElementById('miniCalcButton').disabled=b;
+    }
+
+    function editMiniData(){
+      miniLock(false);
+      document.getElementById('miniResults').style.display='none';
+    }
+
+    function clearMiniCal(){
+      miniLock(false);
+      miniIds().filter(function(id){return id!=='miniTe'&&id!=='miniTb';}).forEach(function(id){
+        document.getElementById(id).value='';
+      });
+      document.getElementById('miniResults').style.display='none';
+      document.getElementById('miniMessage').style.display='none';
+      document.getElementById('miniSl1').focus();
+    }
+
+    function escapeHtml(v){
+      return String(v==null?'':v)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+  </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+}
+</script>
+</body>
+</html>
